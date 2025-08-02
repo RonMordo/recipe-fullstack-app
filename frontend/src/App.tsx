@@ -1,23 +1,26 @@
-import { useState } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
+import { Header } from "./components/Header";
+import { RecipesPage } from "./components/RecipesPage";
+import { Footer } from "./components/Footer";
+import { RecipeDetailPage } from "./components/RecipeDetailPage";
+import { AddRecipePage } from "./components/AddRecipePage";
+import { FavoritesPage } from "./components/FavoritesPage";
 
 function App() {
-  const [count, setCount] = useState(0);
-
   return (
-    <>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <BrowserRouter>
+      <Header />
+      <main className="max-w-7xl mx-auto px-6 py-10 min-h-[70vh]">
+        <Routes>
+          <Route path="/" element={<RecipesPage />} />
+          <Route path="/recipe/:id" element={<RecipeDetailPage />} />
+          <Route path="/add" element={<AddRecipePage />} />
+          <Route path="/favorites" element={<FavoritesPage />} />
+        </Routes>
+      </main>
+      <Footer />
+    </BrowserRouter>
   );
 }
 
