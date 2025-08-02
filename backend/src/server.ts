@@ -3,8 +3,10 @@ import morgan from "morgan";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
+
 import { AppError } from "./utils/appError.js";
 import { globalErrorHandler } from "./middlewares/errorHandler.js";
+import router from "./api/index.js";
 
 // Read from .env
 dotenv.config();
@@ -45,8 +47,11 @@ app.use(
   })
 );
 
+// Api endpoints
+app.use("/api", router);
+
 // Global error handling middleware
-app.all("*", (req, _res, next) => {
+app.use((req, _res, next) => {
   return next(new AppError(`Route ${req.originalUrl} not found.`, 404));
 });
 app.use(globalErrorHandler);
