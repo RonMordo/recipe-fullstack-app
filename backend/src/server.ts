@@ -7,6 +7,7 @@ import cors from "cors";
 import { AppError } from "./utils/appError.js";
 import { globalErrorHandler } from "./middlewares/errorHandler.js";
 import router from "./api/index.js";
+import cookieParser from "cookie-parser";
 
 // Read from .env
 dotenv.config();
@@ -26,7 +27,7 @@ const app = express();
 const initMongo = async () => {
   try {
     await mongoose.connect(
-      `mongodb+srv://${USERNAME}:${PASSWORD}@cluster0.7bnbld9.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`
+      `mongodb+srv://${USERNAME}:${PASSWORD}@cluster0.7bnbld9.mongodb.net/recipeApp?retryWrites=true&w=majority&appName=Cluster0`
     );
     console.log("Database connected");
   } catch (error) {
@@ -39,6 +40,7 @@ initMongo();
 
 // Global middlewares
 app.use(express.json());
+app.use(cookieParser());
 app.use(morgan("tiny"));
 app.use(
   cors({
