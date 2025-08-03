@@ -15,6 +15,9 @@ export type CreateUserInput = Pick<IUser, "email" | "name" | "password"> &
 
 export type PatchUserInput = Partial<CreateUserInput>;
 
+// Response
+export type ResponseUser = Omit<IUser, "password">;
+
 // Mongo types/interfaces
 export type UserDocument = HydratedDocument<IUser>;
 
