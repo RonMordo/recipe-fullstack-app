@@ -2,22 +2,30 @@ import { Link, NavLink } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
-import { AuthDialog } from "./LoginRegisterDialog";
+import { AuthDialog } from "@/api/auth/AuthDialog";
+import { ModeToggle } from "@/components/ModeToggle";
 
 export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // Убрали "Home", Recipes ведет на /recipes
-  const navItems = [
+  const isAuth = true;
+
+  const navItemsAuth = [
     { label: "Recipes", path: "/" },
     { label: "Favorites", path: "/favorites" },
     { label: "Add Recipe", path: "/add" },
+    { label: "Contact AS", path: "/contact-as" },
+  ];
+
+  const navItemsGuest = [
+    { label: "Recipes", path: "/" },
+    { label: "Contact AS", path: "/contact-as" },
+    { label: "About Us", path: "/about" },
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-white shadow-sm">
+    <header className="sticky top-0 z-50 w-full bg-white dark:bg-[#1e1e2f] shadow-sm transition-colors">
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-        {/* Логотип */}
         <Link
           to="/"
           className="text-2xl font-bold text-green-600 hover:text-green-700 transition"
@@ -25,17 +33,16 @@ export function Header() {
           RecipeHub
         </Link>
 
-        {/* Навигация для десктопа */}
         <nav className="hidden md:flex gap-6">
-          {navItems.map(({ label, path }) => (
+          {(isAuth ? navItemsAuth : navItemsGuest).map(({ label, path }) => (
             <NavLink
               key={path}
               to={path}
               className={({ isActive }) =>
                 `text-sm font-medium transition ${
                   isActive
-                    ? "text-green-600 underline"
-                    : "text-gray-600 hover:text-green-500"
+                    ? "text-green-500 underline"
+                    : "text-gray-700 dark:text-gray-300 hover:text-green-400"
                 }`
               }
             >
@@ -44,17 +51,25 @@ export function Header() {
           ))}
         </nav>
 
-        {/* Кнопки авторизации */}
         <div className="hidden md:flex items-center gap-4">
-          <div className="hidden md:flex items-center gap-4">
+          <ModeToggle />
+          {isAuth ? (
+            <>
+              <Button variant="ghost" size="sm">
+                Profile
+              </Button>
+              <Button variant="outline" size="sm">
+                Logout
+              </Button>
+            </>
+          ) : (
             <AuthDialog />
-          </div>
+          )}
         </div>
 
-        {/* Мобильное меню кнопка */}
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
-          className="md:hidden text-gray-700 focus:outline-none"
+          className="md:hidden text-gray-700 dark:text-gray-300 focus:outline-none"
           aria-label={mobileOpen ? "Close menu" : "Open menu"}
           aria-expanded={mobileOpen}
           aria-controls="mobile-menu"
@@ -67,32 +82,41 @@ export function Header() {
         </button>
       </div>
 
-      {/* Мобильное меню контент */}
       {mobileOpen && (
         <nav
           id="mobile-menu"
-          className="md:hidden px-4 pb-4 space-y-2 bg-white border-t border-gray-200"
+          className="md:hidden px-4 pb-4 space-y-2 bg-white dark:bg-[#2a2a3d] border-t border-gray-200 dark:border-gray-700 transition-colors"
         >
-          {navItems.map(({ label, path }) => (
+          {(isAuth ? navItemsAuth : navItemsGuest).map(({ label, path }) => (
             <NavLink
               key={path}
               to={path}
               onClick={() => setMobileOpen(false)}
               className={({ isActive }) =>
-                `block text-sm font-medium ${
+                `block text-sm font-medium transition ${
                   isActive
-                    ? "text-green-600 underline"
-                    : "text-gray-700 hover:text-green-500"
+                    ? "text-green-500 underline"
+                    : "text-gray-700 dark:text-gray-300 hover:text-green-400"
                 }`
               }
             >
               {label}
             </NavLink>
           ))}
-          <div className="pt-2 border-t mt-2">
-            <Button variant="outline" size="sm" className="w-full">
-              Login
-            </Button>
+          <div className="pt-2 border-t mt-2 flex flex-col gap-2">
+            <ModeToggle />
+            {isAuth ? (
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full"
+                onClick={() => {}}
+              >
+                Logout
+              </Button>
+            ) : (
+              <AuthDialog />
+            )}
           </div>
         </nav>
       )}
