@@ -1,7 +1,9 @@
 import { userService } from "./user.service.js";
 import { CreateUserInput, PatchUserInput, ResponseUser } from "./user.types.js";
 import { Request, Response, NextFunction } from "express";
-import { IdParams } from "../../utils/types.js";
+import { AuthenticatedRequest, IdParams } from "../../utils/types.js";
+import { IRecipe } from "../recipes/recipe.types.js";
+import { IReview } from "../reviews/review.types.js";
 
 const getAllUsers = async (
   _req: Request,
@@ -9,10 +11,7 @@ const getAllUsers = async (
   next: NextFunction
 ) => {
   try {
-    const users = (await userService.getAllUsers()).map((u) => {
-      const { password, ...user } = u.toObject();
-      return user;
-    });
+    const users = await userService.getAllUsers();
     return res.status(200).json(users);
   } catch (err) {
     return next(err);
@@ -25,9 +24,7 @@ const getUserById = async (
   next: NextFunction
 ) => {
   try {
-    const { password, ...user } = (
-      await userService.getUserById(req.params.id)
-    ).toObject();
+    const user = await userService.getUserById(req.params.id);
     return res.status(200).json(user);
   } catch (err) {
     return next(err);
@@ -55,9 +52,7 @@ const patchUser = async (
   next: NextFunction
 ) => {
   try {
-    const { password, ...updatedUser } = (
-      await userService.patchUser(req.params.id, req.body)
-    ).toObject();
+    const updatedUser = await userService.patchUser(req.params.id, req.body);
     return res.status(200).json(updatedUser);
   } catch (err) {
     return next(err);
@@ -70,10 +65,34 @@ const deleteUser = async (
   next: NextFunction
 ) => {
   try {
-    const { password, ...deletedUser } = (
-      await userService.deleteUser(req.params.id)
-    ).toObject();
+    const deletedUser = await userService.deleteUser(req.params.id);
     return res.status(200).json(deletedUser);
+  } catch (err) {
+    return next(err);
+  }
+};
+
+const getAllRecipes = async (
+  req: AuthenticatedRequest,
+  res: Response<IRecipe[]>,
+  next: NextFunction
+) => {
+  try {
+    const recipes = await userService.getAllRecipes(req.user!.id);
+    return res.status(200).json(recipes);
+  } catch (err) {
+    return next(err);
+  }
+};
+
+const getAllReviews = async (
+  req: AuthenticatedRequest,
+  res: Response<IReview[]>,
+  next: NextFunction
+) => {
+  try {
+    const reviews = await userService.getAllReviews(req.user!.id);
+    return res.status(200).json(reviews);
   } catch (err) {
     return next(err);
   }
@@ -85,4 +104,6 @@ export const userController = {
   updateUser,
   patchUser,
   deleteUser,
+  getAllRecipes,
+  getAllReviews,
 };

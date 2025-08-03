@@ -8,6 +8,8 @@ const authenticate = async (
   _res: Response,
   next: NextFunction
 ) => {
+  console.log("middleware");
+
   const token = req.cookies.token;
   if (typeof token !== "string") {
     return next(new AppError("Unauthorized", 401));

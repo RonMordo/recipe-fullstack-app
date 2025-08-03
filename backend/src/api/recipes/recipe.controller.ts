@@ -1,11 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 import { recipeService } from "./recipe.service.js";
-import { IdParams } from "../../utils/types.js";
+import { AuthenticatedRequest, IdParams } from "../../utils/types.js";
 import {
   CreateRecipeInput,
   IRecipe,
   PatchRecipeInput,
 } from "./recipe.types.js";
+import { IReview } from "../reviews/review.types.js";
 
 const getAllRecipes = async (
   _req: Request,
@@ -34,12 +35,12 @@ const getRecipeById = async (
 };
 
 const createRecipe = async (
-  req: Request<{}, {}, CreateRecipeInput>,
+  req: AuthenticatedRequest<{}, {}, CreateRecipeInput>,
   res: Response<IRecipe>,
   next: NextFunction
 ) => {
   try {
-    const newRecipe = await recipeService.createRecipe(req.body);
+    const newRecipe = await recipeService.createRecipe(req.user!.id, req.body);
     return res.status(201).json(newRecipe);
   } catch (err) {
     return next(err);
@@ -47,7 +48,7 @@ const createRecipe = async (
 };
 
 const updateRecipe = async (
-  req: Request<IdParams, {}, CreateRecipeInput>,
+  req: AuthenticatedRequest<IdParams, {}, CreateRecipeInput>,
   res: Response<IRecipe>,
   next: NextFunction
 ) => {
@@ -63,7 +64,7 @@ const updateRecipe = async (
 };
 
 const patchRecipe = async (
-  req: Request<IdParams, {}, PatchRecipeInput>,
+  req: AuthenticatedRequest<IdParams, {}, PatchRecipeInput>,
   res: Response<IRecipe>,
   next: NextFunction
 ) => {
@@ -79,13 +80,26 @@ const patchRecipe = async (
 };
 
 const deleteRecipe = async (
-  req: Request<IdParams>,
+  req: AuthenticatedRequest<IdParams>,
   res: Response<IRecipe>,
   next: NextFunction
 ) => {
   try {
     const deletedRecipe = await recipeService.deleteRecipe(req.params.id);
     return res.status(200).json(deletedRecipe);
+  } catch (err) {
+    return next(err);
+  }
+};
+
+const getAllReviews = async (
+  req: Request<IdParams>,
+  res: Response<IReview[]>,
+  next: NextFunction
+) => {
+  try {
+    const reviews = await recipeService.getAllReviews(req.params.id);
+    return res.status(200).json(reviews);
   } catch (err) {
     return next(err);
   }
@@ -98,4 +112,5 @@ export const recipeController = {
   updateRecipe,
   patchRecipe,
   deleteRecipe,
+  getAllReviews,
 };
