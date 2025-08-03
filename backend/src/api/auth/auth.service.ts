@@ -29,11 +29,7 @@ const verifyToken = (token: string) => {
 };
 
 const register = async (userData: RegisterInput) => {
-  const hashedPassword = await hashPassword(userData.password);
-  const newUser = await userService.createUser({
-    ...userData,
-    password: hashedPassword,
-  });
+  const newUser = await userService.createUser(userData);
   return newUser;
 };
 

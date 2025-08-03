@@ -5,7 +5,7 @@ import {
   IReview,
   PatchReviewInput,
 } from "./review.types.js";
-import { IdParams } from "../../utils/types.js";
+import { AuthenticatedRequest, IdParams } from "../../utils/types.js";
 
 const getAllReviews = async (
   _req: Request,
@@ -32,19 +32,19 @@ const getReviewById = async (
   }
 };
 const createReview = async (
-  req: Request<{}, {}, CreateReviewInput>,
+  req: AuthenticatedRequest<{}, {}, CreateReviewInput>,
   res: Response<IReview>,
   next: NextFunction
 ) => {
   try {
-    const newReview = await reviewService.createReview(req.body);
+    const newReview = await reviewService.createReview(req.user!.id, req.body);
     return res.status(201).json(newReview);
   } catch (err) {
     return next(err);
   }
 };
 const updateReview = async (
-  req: Request<IdParams, {}, CreateReviewInput>,
+  req: AuthenticatedRequest<IdParams, {}, CreateReviewInput>,
   res: Response<IReview>,
   next: NextFunction
 ) => {
@@ -59,7 +59,7 @@ const updateReview = async (
   }
 };
 const patchReview = async (
-  req: Request<IdParams, {}, PatchReviewInput>,
+  req: AuthenticatedRequest<IdParams, {}, PatchReviewInput>,
   res: Response<IReview>,
   next: NextFunction
 ) => {
@@ -74,7 +74,7 @@ const patchReview = async (
   }
 };
 const deleteReview = async (
-  req: Request<IdParams>,
+  req: AuthenticatedRequest<IdParams>,
   res: Response<IReview>,
   next: NextFunction
 ) => {

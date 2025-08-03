@@ -1,18 +1,25 @@
 import { UserModel } from "./user.model.js";
 import { AppError } from "../../utils/appError.js";
 import { CreateUserInput, PatchUserInput } from "./user.types.js";
-import { authService } from "../auth/auth.service.js";
+import { RecipeModel } from "../recipes/recipe.model.js";
+import { ReviewModel } from "../reviews/review.model.js";
 
 const getAllUsers = () => {
-  return UserModel.find();
+  return UserModel.find()
+    .populate({ path: "reviews", select: "-__v" })
+    .populate({ path: "recipes", select: "-__v" })
+    .select("-password -__v");
 };
 
 const getUserById = async (id: string) => {
-  const recipe = await UserModel.findById(id);
-  if (!recipe) {
+  const user = await UserModel.findById(id)
+    .select("-password -__v")
+    .populate({ path: "recipes", select: "-__v" })
+    .populate({ path: "reviews", select: "-__v" });
+  if (!user) {
     throw new AppError(`User with ID: ${id} not found.`, 404);
   }
-  return recipe;
+  return user;
 };
 
 const getUserByEmail = async (email: string) => {
@@ -28,31 +35,32 @@ const createUser = async (userData: CreateUserInput) => {
   if (emailExists) {
     throw new AppError("Email already in use.", 409);
   }
-  const newUser = await UserModel.create(userData);
-  return newUser.save();
+  const savedUser = await UserModel.create(userData);
+  return getUserById(savedUser._id.toString());
 };
 
 const updateUser = async (id: string, userData: CreateUserInput) => {
-  const hashedPassword = await authService.hashPassword(userData.password);
-  const userToUpdate = await getUserById(id);
-  Object.assign(userToUpdate, { ...userData, password: hashedPassword });
-  return userToUpdate.save();
+  const updatedUser = await UserModel.findByIdAndUpdate(id, userData, {
+    runValidators: true,
+    new: true,
+  })
+    .select("-password -__v")
+    .populate({ path: "recipes", select: "-__v" })
+    .populate({ path: "reviews", select: "-__v" });
+  if (!updatedUser) {
+    throw new AppError("Invalid credentials.", 400);
+  }
+  return updatedUser;
 };
 
 const patchUser = async (id: string, userData: PatchUserInput) => {
-  const updatedUser = await UserModel.findByIdAndUpdate(
-    id,
-    userData.password
-      ? {
-          ...userData,
-          password: await authService.hashPassword(userData.password),
-        }
-      : userData,
-    {
-      runValidators: true,
-      new: true,
-    }
-  );
+  const updatedUser = await UserModel.findByIdAndUpdate(id, userData, {
+    runValidators: true,
+    new: true,
+  })
+    .select("-password -__v")
+    .populate({ path: "recipes", select: "-__v" })
+    .populate({ path: "reviews", select: "-__v" });
   if (!updatedUser) {
     throw new AppError(`User with ID: ${id} not found.`, 404);
   }
@@ -60,11 +68,22 @@ const patchUser = async (id: string, userData: PatchUserInput) => {
 };
 
 const deleteUser = async (id: string) => {
-  const deletedUser = await UserModel.findByIdAndDelete(id);
+  const deletedUser = await UserModel.findByIdAndDelete(id)
+    .select("-password -__v")
+    .populate({ path: "recipes", select: "-__v" })
+    .populate({ path: "reviews", select: "-__v" });
   if (!deletedUser) {
     throw new AppError(`User with ID: ${id} not found.`, 404);
   }
   return deletedUser;
+};
+
+const getAllRecipes = (id: string) => {
+  return RecipeModel.find({ creator: id }).select("-__v");
+};
+
+const getAllReviews = (id: string) => {
+  return ReviewModel.find({ reviewer: id });
 };
 
 export const userService = {
@@ -75,4 +94,6 @@ export const userService = {
   updateUser,
   patchUser,
   deleteUser,
+  getAllRecipes,
+  getAllReviews,
 };

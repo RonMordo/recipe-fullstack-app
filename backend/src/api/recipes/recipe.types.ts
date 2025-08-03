@@ -7,12 +7,16 @@ export interface IRecipe {
   instructions: string;
   description: string;
   creator: Types.ObjectId;
-  reviews: Types.ObjectId[];
+  category: "kosher" | "vegan" | "vegetarian" | "meat-based" | "gluten-free";
+  preparationTime: 1 | 2 | 3 | 4;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export type CreateRecipeInput = Omit<IRecipe, "createdAt" | "updatedAt">;
+export type CreateRecipeInput = Omit<
+  IRecipe,
+  "createdAt" | "updatedAt" | "creator"
+>;
 
 export type PatchRecipeInput = Partial<CreateRecipeInput>;
 

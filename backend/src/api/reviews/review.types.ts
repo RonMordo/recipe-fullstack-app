@@ -9,10 +9,7 @@ export interface IReview {
   updatedAt: Date;
 }
 
-export type CreateReviewInput = Pick<
-  IReview,
-  "reviewer" | "recipe" | "rating" | "content"
->;
+export type CreateReviewInput = Pick<IReview, "recipe" | "rating" | "content">;
 
 export type PatchReviewInput = Partial<CreateReviewInput>;
 

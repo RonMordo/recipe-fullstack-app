@@ -1,4 +1,4 @@
-import { Schema, Types, model } from "mongoose";
+import { Schema, model } from "mongoose";
 import { RecipeDocument, IRecipeModel } from "./recipe.types.js";
 
 const recipeSchema = new Schema<RecipeDocument, IRecipeModel>(
@@ -25,17 +25,18 @@ const recipeSchema = new Schema<RecipeDocument, IRecipeModel>(
     },
     creator: {
       type: Schema.Types.ObjectId,
+      ref: "User",
       required: true,
     },
-    reviews: {
-      type: [
-        {
-          type: Schema.Types.ObjectId,
-          ref: "Review",
-          required: true,
-        },
-      ],
-      default: (): Types.ObjectId[] => [],
+    category: {
+      type: String,
+      required: true,
+      enum: ["kosher", "vegan", "vegetarian", "meat-based", "gluten-free"],
+    },
+    preparationTime: {
+      type: Number,
+      required: true,
+      enum: [1, 2, 3, 4],
     },
   },
   {
