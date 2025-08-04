@@ -14,7 +14,6 @@ const createRecipeBody = z.object({
     z.literal("meat-based"),
     z.literal("gluten-free"),
   ]),
-  //test
   preparationTime: z.union([
     z.literal(1),
     z.literal(2),
