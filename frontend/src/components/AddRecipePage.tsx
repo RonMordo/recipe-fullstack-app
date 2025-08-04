@@ -16,7 +16,7 @@ const recipeSchema = z.object({
     .array(z.string().min(1, "Ingredient cannot be empty"))
     .min(1, "At least one ingredient is required"),
   preparationTime: z.string().nonempty("Preparation time is required"),
-  tags: z.array(z.string()).optional(),
+  tags: z.array(z.string()).nonempty("Must select a filter tag"),
   instructions: z
     .string()
     .min(10, "Instructions must be at least 10 characters"),
@@ -238,11 +238,12 @@ export function AddRecipePage() {
               className="flex-grow border border-gray-300 dark:border-gray-700 rounded px-3 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500 transition h-11"
             >
               <option value="">Select a tag</option>
-              <option value="Kosher">Vegan</option>
-              <option value="Vegan">Gluten Free</option>
-              <option value="Vegeterian">Low Carb</option>
-              <option value="Meat-Based">High Protein</option>
-              <option value="Gluten Free">Dairy Free</option>
+              <option value="Kosher">Kosher</option>
+              <option value="Vegan">Vegan</option>
+              <option value="Vegeterian">Vegeterian</option>
+              <option value="Meat-Based">Meat-Based</option>
+              <option value="Gluten Free">Gluten Free</option>
+              <option value="Other">Other</option>
             </select>
             <button
               type="button"
