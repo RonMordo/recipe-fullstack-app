@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 
 export function Footer() {
-  const isAuth = false;
+  const { isAuth } = useAuth();
 
   const navItemsAuth = [
     { label: "Recipes", path: "/" },
@@ -11,16 +12,22 @@ export function Footer() {
 
   const navItemsGuest = [
     { label: "Recipes", path: "/" },
-    { label: "Contact AS", path: "/contact-as" },
-    { label: "About Us", path: "/about" },
+    { label: "Contact US", path: "/contact-as" },
+    { label: "About US", path: "/about" },
   ];
 
   const navItems = isAuth ? navItemsAuth : navItemsGuest;
 
   return (
-    <footer className="bg-white dark:bg-[#1e1e2f] shadow-inner mt-12 transition-colors">
+    <footer className="bg-white dark:bg-[hsl(240,27%,14%)] shadow-inner mt-12 transition-colors">
       <div className="max-w-7xl mx-auto px-4 py-6 flex flex-col md:flex-row justify-between items-center text-gray-600 dark:text-[#e4e4e7]">
-        <div className="mb-4 md:mb-0 text-sm">
+        <Link
+          to="/"
+          className="text-2xl font-bold text-green-600 hover:text-green-700 transition"
+        >
+          RecipeHub
+        </Link>
+        <div className="mb-4 md:mb-0 text-sm text-center">
           © 2025 RecipeHub. All rights reserved.
         </div>
         <nav className="flex gap-6 text-sm">

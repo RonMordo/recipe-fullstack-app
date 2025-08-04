@@ -4,27 +4,28 @@ import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { AuthDialog } from "@/api/auth/AuthDialog";
 import { ModeToggle } from "@/components/ModeToggle";
+import { useAuth } from "@/context/AuthContext";
 
 export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const isAuth = true;
+  const { isAuth, logout } = useAuth();
 
   const navItemsAuth = [
     { label: "Recipes", path: "/" },
     { label: "Favorites", path: "/favorites" },
     { label: "Add Recipe", path: "/add" },
-    { label: "Contact AS", path: "/contact-as" },
+    { label: "Contact US", path: "/contact-as" },
   ];
 
   const navItemsGuest = [
     { label: "Recipes", path: "/" },
-    { label: "Contact AS", path: "/contact-as" },
-    { label: "About Us", path: "/about" },
+    { label: "Contact US", path: "/contact-as" },
+    { label: "About US", path: "/about" },
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-white dark:bg-[#1e1e2f] shadow-sm transition-colors">
+    <header className="sticky top-0 z-50 w-full bg-white dark:bg-[hsl(240,27%,14%)] shadow-sm transition-colors">
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
         <Link
           to="/"
@@ -58,7 +59,7 @@ export function Header() {
               <Button variant="ghost" size="sm">
                 Profile
               </Button>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={logout}>
                 Logout
               </Button>
             </>
@@ -110,7 +111,7 @@ export function Header() {
                 variant="outline"
                 size="sm"
                 className="w-full"
-                onClick={() => {}}
+                onClick={logout}
               >
                 Logout
               </Button>

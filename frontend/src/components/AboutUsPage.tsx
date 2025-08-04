@@ -23,11 +23,13 @@ export function AboutUsPage() {
             Here’s why millions trust us to fuel their culinary adventures:
           </p>
         </div>
-        <img
-          src="https://thumbs.dreamstime.com/b/retro-young-woman-clothes-cooking-soup-her-kitchen-room-vector-color-illustration-122361523.jpg"
-          alt="Cooking illustration"
-          className="md:w-1/2 max-h-80 object-contain rounded-lg shadow-lg"
-        />
+        <div className=" max-w-[300px] max-h-[300px] md:w-1/2 overflow-hidden rounded-2xl shadow-lg bg-neutral-900 flex items-center justify-center">
+          <img
+            src="https://thumbs.dreamstime.com/b/retro-young-woman-clothes-cooking-soup-her-kitchen-room-vector-color-illustration-122361523.jpg"
+            alt="Cooking illustration"
+            className="w-full h-auto"
+          />
+        </div>
       </div>
 
       <div className="grid md:grid-cols-3 gap-12">

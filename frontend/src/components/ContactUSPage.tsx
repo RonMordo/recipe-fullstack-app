@@ -14,7 +14,7 @@ const contactSchema = z.object({
 
 type ContactFormData = z.infer<typeof contactSchema>;
 
-export function ContactASPage() {
+export function ContactUSPage() {
   const [toast, setToast] = useState<{
     message: string;
     type: "success" | "error";
@@ -83,7 +83,7 @@ export function ContactASPage() {
                   : "border-gray-300 dark:border-zinc-600"
               }`}
             />
-            <span className="absolute left-3 top-9 text-green-400 dark:text-emerald-400 pointer-events-none">
+            <span className="absolute left-3 top-11 text-green-400 dark:text-emerald-400 pointer-events-none">
               👤
             </span>
             {errors.name && (
@@ -111,7 +111,7 @@ export function ContactASPage() {
                   : "border-gray-300 dark:border-zinc-600"
               }`}
             />
-            <span className="absolute left-3 top-9 text-green-400 dark:text-emerald-400 pointer-events-none">
+            <span className="absolute left-3 top-11 text-green-400 dark:text-emerald-400 pointer-events-none">
               📧
             </span>
             {errors.email && (
@@ -139,7 +139,7 @@ export function ContactASPage() {
                   : "border-gray-300 dark:border-zinc-600"
               }`}
             />
-            <span className="absolute left-3 top-12 text-green-400 dark:text-emerald-400 pointer-events-none">
+            <span className="absolute left-3 top-11 text-green-400 dark:text-emerald-400 pointer-events-none">
               💬
             </span>
             {errors.message && (

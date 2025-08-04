@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 type Recipe = {
   id: string;
@@ -188,6 +189,7 @@ export function RecipeDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [recipe, setRecipe] = useState<Recipe | null>(null);
+  const { isAuth } = useAuth();
 
   useEffect(() => {
     const found = recipes.find((r) => r.id === id);
@@ -202,6 +204,15 @@ export function RecipeDetailPage() {
     return <div className="p-10 text-center">Loading...</div>;
   }
 
+  const handleDelete = () => {
+    alert("Recipe deleted (not really, just a placeholder)");
+    navigate("/");
+  };
+
+  const handleEdit = () => {
+    alert("Edit clicked (placeholder)");
+  };
+
   return (
     <div className="max-w-4xl mx-auto px-6 py-10">
       <button
@@ -211,12 +222,33 @@ export function RecipeDetailPage() {
         &larr; Back to Recipes
       </button>
 
-      <img
-        src={recipe.imageUrl}
-        alt={recipe.title}
-        className="w-full rounded-lg shadow-lg mb-6 object-cover max-h-96 mx-auto"
-        loading="lazy"
-      />
+      <div className="relative mb-6">
+        {isAuth && (
+          <div className="absolute -top-14 right-0 flex gap-3">
+            <button
+              onClick={handleEdit}
+              type="button"
+              className="inline-flex items-center px-4 py-2 rounded-md border border-gray-300 bg-white text-gray-700 shadow-sm hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 transition"
+            >
+              Edit
+            </button>
+            <button
+              onClick={handleDelete}
+              type="button"
+              className="inline-flex items-center px-4 py-2 rounded-md border border-red-400 bg-red-50 text-red-600 shadow-sm hover:bg-red-100 hover:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-400 transition"
+            >
+              Delete
+            </button>
+          </div>
+        )}
+
+        <img
+          src={recipe.imageUrl}
+          alt={recipe.title}
+          className="w-full rounded-lg shadow-lg object-cover max-h-96 mx-auto"
+          loading="lazy"
+        />
+      </div>
 
       <h1 className="text-4xl font-bold mb-6 text-center">{recipe.title}</h1>
 

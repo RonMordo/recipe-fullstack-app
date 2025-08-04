@@ -92,7 +92,7 @@
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
+  --background-gradient: linear-gradient(135deg, #1a1f2b, #3a1f2f, #2b2f40);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
   --card-foreground: oklch(0.985 0 0);
@@ -123,6 +123,16 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+}
+
+body {
+  background-color: var(--background);
+  background-image: var(--background-gradient);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  color: var(--foreground);
+  transition: background 0.5s ease;
 }
 
 @layer base {
