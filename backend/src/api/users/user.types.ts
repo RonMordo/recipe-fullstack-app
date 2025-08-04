@@ -1,6 +1,8 @@
 import { HydratedDocument, Model } from "mongoose";
 import { IRecipe } from "../recipes/recipe.types.js";
 import { IReview } from "../reviews/review.types.js";
+import { userValidationSchema } from "./user.schema.js";
+import z from "zod";
 
 export interface IUser {
   email: string;
@@ -10,8 +12,15 @@ export interface IUser {
   updatedAt: Date;
 }
 
-export type CreateUserInput = Pick<IUser, "email" | "name" | "password">;
-export type PatchUserInput = Partial<CreateUserInput>;
+export type CreateUserInput = z.infer<
+  typeof userValidationSchema.createUserBody
+>;
+export type UpdateUserInput = z.infer<
+  typeof userValidationSchema.createUserBody
+>;
+export type PatchUserInput = Partial<
+  z.infer<typeof userValidationSchema.createUserBody>
+>;
 
 // Response
 export type ResponseUser = Omit<IUser, "password"> & {

@@ -1,6 +1,10 @@
 import { UserModel } from "./user.model.js";
-import { AppError } from "../../utils/appError.js";
-import { CreateUserInput, PatchUserInput } from "./user.types.js";
+import { AppError } from "../../utils/appError.util.js";
+import {
+  CreateUserInput,
+  PatchUserInput,
+  UpdateUserInput,
+} from "./user.types.js";
 import { RecipeModel } from "../recipes/recipe.model.js";
 import { ReviewModel } from "../reviews/review.model.js";
 
@@ -39,7 +43,7 @@ const createUser = async (userData: CreateUserInput) => {
   return getUserById(savedUser._id.toString());
 };
 
-const updateUser = async (id: string, userData: CreateUserInput) => {
+const updateUser = async (id: string, userData: UpdateUserInput) => {
   const updatedUser = await UserModel.findByIdAndUpdate(id, userData, {
     runValidators: true,
     new: true,
@@ -79,11 +83,17 @@ const deleteUser = async (id: string) => {
 };
 
 const getAllRecipes = (id: string) => {
-  return RecipeModel.find({ creator: id }).select("-__v");
+  return RecipeModel.find({ creator: id })
+    .select("-__v")
+    .populate({ path: "reviews", select: "-__v" })
+    .populate({ path: "creator", select: "-__v -password" });
 };
 
 const getAllReviews = (id: string) => {
-  return ReviewModel.find({ reviewer: id });
+  return ReviewModel.find({ reviewer: id })
+    .select("-__v")
+    .populate({ path: "reviewer", select: "-__v -password" })
+    .populate({ path: "recipe", select: "-__v" });
 };
 
 export const userService = {

@@ -1,5 +1,5 @@
 import { ReviewModel } from "./review.model.js";
-import { AppError } from "../../utils/appError.js";
+import { AppError } from "../../utils/appError.util.js";
 import { CreateReviewInput, PatchReviewInput } from "./review.types.js";
 
 const getAllReviews = () => {
@@ -14,9 +14,14 @@ const getReviewById = async (id: string) => {
   return review;
 };
 
-const createReview = async (userId: string, reviewData: CreateReviewInput) => {
+const createReview = async (
+  userId: string,
+  recipeId: string,
+  reviewData: CreateReviewInput
+) => {
   const savedReview = await ReviewModel.create({
     ...reviewData,
+    recipe: recipeId,
     reviewer: userId,
   });
   return getReviewById(savedReview._id.toString());

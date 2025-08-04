@@ -4,8 +4,8 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
 
-import { AppError } from "./utils/appError.js";
-import { globalErrorHandler } from "./middlewares/errorHandler.js";
+import { AppError } from "./utils/appError.util.js";
+import { globalErrorHandler } from "./middlewares/errorHandler.middleware.js";
 import router from "./api/index.js";
 import cookieParser from "cookie-parser";
 

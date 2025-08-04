@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { authService } from "./auth.service.js";
-import { AuthenticatedRequest } from "../../utils/types.js";
-import { AppError } from "../../utils/appError.js";
+import { AuthenticatedRequest } from "../../utils/globalTypes.util.js";
+import { AppError } from "../../utils/appError.util.js";
 
 const authenticate = async (
   req: Request,

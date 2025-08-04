@@ -1,7 +1,10 @@
 import { userService } from "./user.service.js";
-import { CreateUserInput, PatchUserInput, ResponseUser } from "./user.types.js";
+import { PatchUserInput, ResponseUser, UpdateUserInput } from "./user.types.js";
 import { Request, Response, NextFunction } from "express";
-import { AuthenticatedRequest, IdParams } from "../../utils/types.js";
+import {
+  AuthenticatedRequest,
+  IdParams,
+} from "../../utils/globalTypes.util.js";
 import { IRecipe } from "../recipes/recipe.types.js";
 import { IReview } from "../reviews/review.types.js";
 
@@ -32,7 +35,7 @@ const getUserById = async (
 };
 
 const updateUser = async (
-  req: Request<IdParams, {}, CreateUserInput>,
+  req: Request<IdParams, {}, UpdateUserInput>,
   res: Response<ResponseUser>,
   next: NextFunction
 ) => {
