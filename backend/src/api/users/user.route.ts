@@ -28,24 +28,19 @@ router.get(
 );
 
 router.put(
-  "/:id",
+  "/",
   authMiddleware.authenticate,
   validate(userValidationSchema.updateUserSchema),
   userController.updateUser
 );
 
 router.patch(
-  "/:id",
+  "/",
   authMiddleware.authenticate,
   validate(userValidationSchema.patchUserSchema),
   userController.patchUser
 );
 
-router.delete(
-  "/:id",
-  authMiddleware.authenticate,
-  validate(globalValidationSchemas.getByIdSchema),
-  userController.deleteUser
-);
+router.delete("/", authMiddleware.authenticate, userController.deleteUser);
 
 export default router;

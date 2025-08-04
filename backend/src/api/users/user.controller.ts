@@ -35,13 +35,13 @@ const getUserById = async (
 };
 
 const updateUser = async (
-  req: Request<IdParams, {}, UpdateUserInput>,
+  req: AuthenticatedRequest<{}, {}, UpdateUserInput>,
   res: Response<ResponseUser>,
   next: NextFunction
 ) => {
   try {
     const { password, ...updatedUser } = (
-      await userService.updateUser(req.params.id, req.body)
+      await userService.updateUser(req.user!.id, req.body)
     ).toObject();
     return res.status(200).json(updatedUser);
   } catch (err) {
@@ -50,12 +50,12 @@ const updateUser = async (
 };
 
 const patchUser = async (
-  req: Request<IdParams, {}, PatchUserInput>,
+  req: AuthenticatedRequest<{}, {}, PatchUserInput>,
   res: Response<ResponseUser>,
   next: NextFunction
 ) => {
   try {
-    const updatedUser = await userService.patchUser(req.params.id, req.body);
+    const updatedUser = await userService.patchUser(req.user!.id, req.body);
     return res.status(200).json(updatedUser);
   } catch (err) {
     return next(err);
@@ -63,12 +63,12 @@ const patchUser = async (
 };
 
 const deleteUser = async (
-  req: Request<IdParams>,
+  req: AuthenticatedRequest,
   res: Response<ResponseUser>,
   next: NextFunction
 ) => {
   try {
-    const deletedUser = await userService.deleteUser(req.params.id);
+    const deletedUser = await userService.deleteUser(req.user!.id);
     return res.status(200).json(deletedUser);
   } catch (err) {
     return next(err);

@@ -1,4 +1,6 @@
 import { Types, HydratedDocument, Model } from "mongoose";
+import { recipeValidationSchemas } from "./recipe.schema.js";
+import z from "zod";
 
 export interface IRecipe {
   imgSrc: string;
@@ -13,12 +15,17 @@ export interface IRecipe {
   updatedAt: Date;
 }
 
-export type CreateRecipeInput = Omit<
-  IRecipe,
-  "createdAt" | "updatedAt" | "creator"
+export type CreateRecipeInput = z.infer<
+  typeof recipeValidationSchemas.createRecipeBody
 >;
 
-export type PatchRecipeInput = Partial<CreateRecipeInput>;
+export type UpdateRecipeInput = z.infer<
+  typeof recipeValidationSchemas.createRecipeBody
+>;
+
+export type PatchRecipeInput = Partial<
+  z.infer<typeof recipeValidationSchemas.createRecipeBody>
+>;
 
 // Mongo types/interfaces
 export type RecipeDocument = HydratedDocument<IRecipe>;
