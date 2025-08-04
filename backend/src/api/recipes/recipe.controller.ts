@@ -1,12 +1,16 @@
 import { Request, Response, NextFunction } from "express";
 import { recipeService } from "./recipe.service.js";
-import { AuthenticatedRequest, IdParams } from "../../utils/types.js";
+import {
+  AuthenticatedRequest,
+  IdParams,
+} from "../../utils/globalTypes.util.js";
 import {
   CreateRecipeInput,
   IRecipe,
   PatchRecipeInput,
 } from "./recipe.types.js";
-import { IReview } from "../reviews/review.types.js";
+import { CreateReviewInput, IReview } from "../reviews/review.types.js";
+import { reviewService } from "../reviews/review.service.js";
 
 const getAllRecipes = async (
   _req: Request,
@@ -105,6 +109,23 @@ const getAllReviews = async (
   }
 };
 
+const createReview = async (
+  req: AuthenticatedRequest<IdParams, {}, CreateReviewInput>,
+  res: Response<IReview>,
+  next: NextFunction
+) => {
+  try {
+    const newReview = await reviewService.createReview(
+      req.user!.id,
+      req.params.id,
+      req.body
+    );
+    return res.status(201).json(newReview);
+  } catch (err) {
+    return next(err);
+  }
+};
+
 export const recipeController = {
   getAllRecipes,
   getRecipeById,
@@ -113,4 +134,5 @@ export const recipeController = {
   patchRecipe,
   deleteRecipe,
   getAllReviews,
+  createReview,
 };

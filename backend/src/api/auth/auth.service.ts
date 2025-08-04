@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import { JwtPayload, LoginInput, RegisterInput } from "./auth.types.js";
-import { AppError } from "../../utils/appError.js";
+import { AppError } from "../../utils/appError.util.js";
 import { userService } from "../users/user.service.js";
 import bcrypt from "bcrypt";
 

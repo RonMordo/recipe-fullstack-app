@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { authService } from "./auth.service.js";
 import { LoginInput, RegisterInput } from "./auth.types.js";
 import { ResponseUser } from "../users/user.types.js";
-import { AuthenticatedRequest } from "../../utils/types.js";
+import { AuthenticatedRequest } from "../../utils/globalTypes.util.js";
 import { userService } from "../users/user.service.js";
 
 const register = async (

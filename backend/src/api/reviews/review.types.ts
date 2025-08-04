@@ -1,4 +1,6 @@
 import { Types, HydratedDocument, Model } from "mongoose";
+import z from "zod";
+import { reviewValidationSchema } from "./review.schema.js";
 
 export interface IReview {
   reviewer: Types.ObjectId;
@@ -9,9 +11,17 @@ export interface IReview {
   updatedAt: Date;
 }
 
-export type CreateReviewInput = Pick<IReview, "recipe" | "rating" | "content">;
+export type CreateReviewInput = z.infer<
+  typeof reviewValidationSchema.createReviewBody
+>;
 
-export type PatchReviewInput = Partial<CreateReviewInput>;
+export type UpdateReviewInput = z.infer<
+  typeof reviewValidationSchema.createReviewBody
+>;
+
+export type PatchReviewInput = Partial<
+  z.infer<typeof reviewValidationSchema.createReviewBody>
+>;
 
 // Mongo types/interfaces
 export type ReviewDocument = HydratedDocument<IReview>;

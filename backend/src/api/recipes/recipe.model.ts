@@ -41,6 +41,8 @@ const recipeSchema = new Schema<RecipeDocument, IRecipeModel>(
   },
   {
     timestamps: true,
+    toObject: { virtuals: true },
+    toJSON: { virtuals: true },
   }
 );
 

@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import { AppError } from "../utils/appError.js";
+import { AppError } from "../utils/appError.util.js";
 
 export const globalErrorHandler = (
   err: unknown,
@@ -9,10 +9,10 @@ export const globalErrorHandler = (
 ) => {
   if (err instanceof AppError) {
     console.log("Error:", err.message);
-
     return res.status(err.statusCode).json({
       status: "error",
       message: err.message,
+      errors: err.errors ?? [],
     });
   }
 
