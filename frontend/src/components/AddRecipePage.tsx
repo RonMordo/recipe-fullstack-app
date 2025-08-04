@@ -3,26 +3,30 @@ import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
-import axios from "axios";
+import api from "../api";
 
 const recipeSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters"),
   imageUrl: z.string().url("Must be a valid URL"),
-  description: z
-    .string()
-    .min(10, "Description must be at least 10 characters "),
-  //
+  description: z.string().min(10, "Description must be at least 10 characters"),
   ingredients: z
     .array(z.string().min(1, "Ingredient cannot be empty"))
     .min(1, "At least one ingredient is required"),
   preparationTime: z.string().nonempty("Preparation time is required"),
-  tags: z.array(z.string()).nonempty("Must select a filter tag"),
+  category: z.string().nonempty("Category is required"),
   instructions: z
     .string()
     .min(10, "Instructions must be at least 10 characters"),
 });
 
 type RecipeFormData = z.infer<typeof recipeSchema>;
+
+const preparationTimeMap: Record<string, 1 | 2 | 3 | 4> = {
+  "Under 15 minutes": 1,
+  "15-30 minutes": 2,
+  "30-60 minutes": 3,
+  "Over 1 hour": 4,
+};
 
 export function AddRecipePage() {
   const {
@@ -38,94 +42,69 @@ export function AddRecipePage() {
   const [currentIngredient, setCurrentIngredient] = useState("");
   const [ingredientsList, setIngredientsList] = useState<string[]>([]);
 
-  const [currentTag, setCurrentTag] = useState("");
-  const [tagsList, setTagsList] = useState<string[]>([]);
+  const [category, setCategory] = useState("");
 
   useEffect(() => {
     setValue("ingredients", ingredientsList);
-  }, [ingredientsList]);
+  }, [ingredientsList, setValue]);
 
   useEffect(() => {
-    setValue("tags", tagsList);
-  }, [tagsList]);
+    setValue("category", category);
+  }, [category, setValue]);
 
   const mutation = useMutation({
     mutationFn: async (data: RecipeFormData) => {
-      const response = await axios.post("/api/recipes", data);
+      const postData = {
+        imgSrc: data.imageUrl,
+        title: data.title,
+        description: data.description,
+        ingredients: ingredientsList,
+        preparationTime: preparationTimeMap[data.preparationTime],
+        category: category.toLowerCase(),
+        instructions: data.instructions,
+      };
+      const response = await api.post("/api/recipes", postData, {
+        withCredentials: true,
+      });
       return response.data;
     },
   });
-
-  // const onSubmit = (data: RecipeFormData) => {
-  //   const enrichedData: RecipeFormData = {
-  //     ...data,
-  //     ingredients: ingredientsList,
-  //     tags: tagsList,
-  //   };
-
-  //   mutation.mutate(enrichedData, {
-  //     onSuccess: () => {
-  //       alert("Recipe added successfully!");
-  //       reset();
-  //       setIngredientsList([]);
-  //       setTagsList([]);
-  //     },
-  //     onError: () => {
-  //       alert("Error adding recipe");
-  //     },
-  //   });
-  // };
 
   const onSubmit = (data: RecipeFormData) => {
     if (ingredientsList.length === 0) {
       alert("Please add at least one ingredient.");
       return;
     }
+    if (!category) {
+      alert("Please select a category.");
+      return;
+    }
 
-    const enrichedData: RecipeFormData = {
-      ...data,
-      ingredients: ingredientsList,
-      tags: tagsList, // if you're using a similar list for tags
-    };
-
-    mutation.mutate(enrichedData, {
+    mutation.mutate(data, {
       onSuccess: () => {
         alert("Recipe added successfully!");
         reset();
         setIngredientsList([]);
-        setTagsList([]);
+        setCategory("");
       },
-      onError: () => {
-        alert("Error adding recipe");
+      onError: (error: any) => {
+        const msg = error?.response?.data?.message || "Error adding recipe";
+        alert(msg);
       },
     });
   };
-
-  // const onSubmit = (data: RecipeFormData) => {
-  //   mutation.mutate(data, {
-  //     onSuccess: () => {
-  //       alert("Recipe added successfully!");
-  //       reset();
-  //     },
-  //     onError: () => {
-  //       alert("Error adding recipe");
-  //     },
-  //   });
-  // };
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white dark:bg-gray-900 rounded-md shadow-md transition-colors">
       <h1 className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">
         Add New Recipe
       </h1>
-
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* title section */}
-
+        {/* title */}
         <div>
           <label
-            className="block mb-1 font-medium text-gray-700 dark:text-gray-300"
             htmlFor="title"
+            className="block mb-1 font-medium text-gray-700 dark:text-gray-300"
           >
             Title
           </label>
@@ -141,11 +120,10 @@ export function AddRecipePage() {
         </div>
 
         {/* image url */}
-
         <div>
           <label
-            className="block mb-1 font-medium text-gray-700 dark:text-gray-300"
             htmlFor="imageUrl"
+            className="block mb-1 font-medium text-gray-700 dark:text-gray-300"
           >
             Image URL
           </label>
@@ -160,12 +138,11 @@ export function AddRecipePage() {
           )}
         </div>
 
-        {/* Description section */}
-
+        {/* description */}
         <div>
           <label
-            className="block mb-1 font-medium text-gray-700 dark:text-gray-300"
             htmlFor="description"
+            className="block mb-1 font-medium text-gray-700 dark:text-gray-300"
           >
             Description
           </label>
@@ -180,16 +157,14 @@ export function AddRecipePage() {
           )}
         </div>
 
-        {/* ingredients section */}
-
+        {/* ingredients */}
         <div>
           <label
-            className="block mb-1 font-medium text-gray-700 dark:text-gray-300"
             htmlFor="ingredientsInput"
+            className="block mb-1 font-medium text-gray-700 dark:text-gray-300"
           >
             Ingredients
           </label>
-
           <div className="flex space-x-2 mb-2">
             <input
               id="ingredientsInput"
@@ -227,13 +202,11 @@ export function AddRecipePage() {
               Add
             </button>
           </div>
-
-          {/* ✅ Render horizontally with wrap */}
           {ingredientsList.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-2">
-              {ingredientsList.map((ing, index) => (
+              {ingredientsList.map((ing, i) => (
                 <span
-                  key={index}
+                  key={i}
                   className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm"
                 >
                   {ing}
@@ -241,82 +214,35 @@ export function AddRecipePage() {
               ))}
             </div>
           )}
-
-          {/* ✅ Hidden input for react-hook-form */}
-          {/* <input
-            type="hidden"
-            {...register("ingredients")}
-            value={JSON.stringify(ingredientsList)}
-          /> */}
-
           {errors.ingredients && (
             <p className="text-red-600 mt-1">{errors.ingredients.message}</p>
           )}
         </div>
 
-        {/* Tags Input Section */}
-        <div className="mt-4">
+        {/* category selection */}
+        <div>
           <label
-            htmlFor="tagInput"
+            htmlFor="category"
             className="block mb-1 font-medium text-gray-700 dark:text-gray-300"
           >
-            Tags
+            Category
           </label>
-
-          <div className="flex space-x-2 mb-2">
-            <select
-              id="tagInput"
-              value={currentTag}
-              onChange={(e) => setCurrentTag(e.target.value)}
-              className="flex-grow border border-gray-300 dark:border-gray-700 rounded px-3 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500 transition h-11"
-            >
-              <option value="">Select a tag</option>
-              <option value="Kosher">Kosher</option>
-              <option value="Vegan">Vegan</option>
-              <option value="Vegeterian">Vegeterian</option>
-              <option value="Meat-Based">Meat-Based</option>
-              <option value="Gluten Free">Gluten Free</option>
-              <option value="Other">Other</option>
-            </select>
-            <button
-              type="button"
-              onClick={() => {
-                if (currentTag && !tagsList.includes(currentTag)) {
-                  setTagsList((prev) => [...prev, currentTag]);
-                  setCurrentTag("");
-                }
-              }}
-              className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
-            >
-              Add
-            </button>
-          </div>
-
-          {tagsList.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-2">
-              {tagsList.map((tag, index) => (
-                <span
-                  key={index}
-                  className="flex items-center px-3 py-1 rounded-full bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100 text-sm"
-                >
-                  {tag}
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setTagsList((prev) => prev.filter((t) => t !== tag))
-                    }
-                    className="ml-2 text-red-500 hover:text-red-700"
-                  >
-                    &times;
-                  </button>
-                </span>
-              ))}
-            </div>
-          )}
+          <select
+            id="category"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="w-full border border-gray-300 dark:border-gray-700 rounded px-3 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500 transition"
+          >
+            <option value="">Select category</option>
+            <option value="kosher">Kosher</option>
+            <option value="vegan">Vegan</option>
+            <option value="vegetarian">Vegetarian</option>
+            <option value="meat-based">Meat-Based</option>
+            <option value="gluten-free">Gluten Free</option>
+          </select>
         </div>
 
-        {/* preparationTime section */}
-
+        {/* preparationTime */}
         <div>
           <label
             htmlFor="preparationTime"
@@ -326,9 +252,7 @@ export function AddRecipePage() {
           </label>
           <select
             id="preparationTime"
-            {...register("preparationTime", {
-              required: "Preparation time is required",
-            })}
+            {...register("preparationTime")}
             className="w-full border border-gray-300 dark:border-gray-700 rounded px-3 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500 transition"
           >
             <option value="">Select time</option>
@@ -344,12 +268,11 @@ export function AddRecipePage() {
           )}
         </div>
 
-        {/* instructions section */}
-
+        {/* instructions */}
         <div>
           <label
-            className="block mb-1 font-medium text-gray-700 dark:text-gray-300"
             htmlFor="instructions"
+            className="block mb-1 font-medium text-gray-700 dark:text-gray-300"
           >
             Instructions
           </label>
