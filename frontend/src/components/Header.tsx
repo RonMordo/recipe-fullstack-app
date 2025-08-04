@@ -9,7 +9,7 @@ import { useAuth } from "@/context/AuthContext";
 export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const { isAuth, logout } = useAuth();
+  const { isAuth, user, logout } = useAuth();
 
   const navItemsAuth = [
     { label: "Recipes", path: "/" },
@@ -57,7 +57,7 @@ export function Header() {
           {isAuth ? (
             <>
               <Button variant="ghost" size="sm">
-                Profile
+                {user?.name}
               </Button>
               <Button variant="outline" size="sm" onClick={logout}>
                 Logout

@@ -9,7 +9,6 @@ import { AuthProvider } from "@/context/AuthContext";
 import { ContactUSPage } from "./components/ContactUSPage";
 import { AboutUsPage } from "./components/AboutUsPage";
 import { ThemeProvider } from "./context/ThemeProvider";
-import { AuthDebugPanel } from "./components/AuthDebugPanel";
 
 function App() {
   return (
@@ -29,7 +28,6 @@ function App() {
               </Routes>
             </main>
             <Footer />
-            <AuthDebugPanel />
           </div>
         </BrowserRouter>
       </ThemeProvider>

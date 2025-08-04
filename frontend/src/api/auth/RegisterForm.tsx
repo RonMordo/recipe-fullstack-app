@@ -4,11 +4,14 @@ import { Button } from "@/components/ui/button";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
+import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 const registerSchema = z.object({
-  name: z.string().min(2),
-  email: z.string().email(),
-  password: z.string().min(6),
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Invalid email"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
 export function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
@@ -20,9 +23,33 @@ export function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
     resolver: zodResolver(registerSchema),
   });
 
-  const onSubmit = (data: any) => {
-    console.log("Register Data", data);
-    onSuccess();
+  const { login } = useAuth();
+
+  const [serverError, setServerError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const onSubmit = async (data: any) => {
+    setServerError(null);
+    setLoading(true);
+    try {
+      await axios.post("/api/auth/register", data);
+
+      await axios.post(
+        "/api/auth/login",
+        { email: data.email, password: data.password },
+        { withCredentials: true }
+      );
+
+      const res = await axios.get("/api/auth/me", { withCredentials: true });
+
+      login(res.data);
+
+      onSuccess();
+    } catch (err: any) {
+      setServerError(err.response?.data?.message || "Registration failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -31,6 +58,7 @@ export function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="flex flex-col justify-center gap-4 p-6"
+          noValidate
         >
           <div>
             <label className="text-sm font-medium">Name</label>
@@ -56,10 +84,16 @@ export function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
             )}
           </div>
 
-          <Button type="submit">Register</Button>
+          {serverError && (
+            <p className="text-red-600 text-sm mt-2">{serverError}</p>
+          )}
+
+          <Button type="submit" disabled={loading}>
+            {loading ? "Registering..." : "Register"}
+          </Button>
         </form>
 
-        <div className="hidden md:block relative bg-muted aspect-[9/16]">
+        <div className="hidden md:block w-full h-full relative">
           <img
             src="https://the-steppe.com/wp-content/img-cache/1097/768/webp/2021/10/8c3e8f4de7b26675364165bbc9d76806.jpg.webp"
             alt="Illustration"

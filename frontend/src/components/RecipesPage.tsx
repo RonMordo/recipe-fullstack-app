@@ -1,148 +1,16 @@
-// RecipesPage.tsx
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import { FilterSidebar } from "./FilterSidebar";
-import { Menu } from "lucide-react";
+import { Menu, X } from "lucide-react";
 
 type Recipe = {
-  id: string;
+  _id: string;
   title: string;
-  imageUrl: string;
-  prepTime: string;
-  foodType: string;
+  imgSrc: string;
+  preparationTime: number;
+  category: string;
 };
-
-const recipes: Recipe[] = [
-  {
-    id: "1",
-    title: "Spaghetti Carbonara",
-    imageUrl:
-      "https://static01.nyt.com/images/2021/02/14/dining/carbonara-horizontal/carbonara-horizontal-jumbo-v2.jpg",
-    prepTime: "30–60 minutes",
-    foodType: "Meat-based",
-  },
-  {
-    id: "2",
-    title: "Chicken Salad",
-    imageUrl:
-      "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80",
-    prepTime: "15–30 minutes",
-    foodType: "Kosher",
-  },
-  {
-    id: "3",
-    title: "Beef Stroganoff",
-    imageUrl:
-      "https://supermancooks.com/wp-content/uploads/2023/03/traditional-beef-stroganoff-featured.jpg",
-    prepTime: "Over 1 hour",
-    foodType: "Meat-based",
-  },
-  {
-    id: "4",
-    title: "Vegetable Stir Fry",
-    imageUrl:
-      "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=800&q=80",
-    prepTime: "15–30 minutes",
-    foodType: "Vegan",
-  },
-  {
-    id: "5",
-    title: "Fish Tacos",
-    imageUrl:
-      "https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?auto=format&fit=crop&w=800&q=80",
-    prepTime: "30–60 minutes",
-    foodType: "Kosher",
-  },
-  {
-    id: "6",
-    title: "Pancakes",
-    imageUrl:
-      "https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&w=800&q=80",
-    prepTime: "15–30 minutes",
-    foodType: "Vegetarian",
-  },
-  {
-    id: "7",
-    title: "Caesar Salad",
-    imageUrl:
-      "https://www.maggi.co.uk/sites/default/files/srh_recipes/3ee1954a36009dd59be2d362a2a44cf6.jpg",
-    prepTime: "Under 15 minutes",
-    foodType: "Vegetarian",
-  },
-  {
-    id: "8",
-    title: "Tomato Soup",
-    imageUrl:
-      "https://www.onceuponachef.com/images/2021/02/Tomato-Soup-3-1200x1800.jpg",
-    prepTime: "15–30 minutes",
-    foodType: "Vegan",
-  },
-
-  {
-    id: "9",
-    title: "Quinoa Salad",
-    imageUrl:
-      "https://cdn.loveandlemons.com/wp-content/uploads/2020/08/quinoa-salad.jpg",
-    prepTime: "15–30 minutes",
-    foodType: "Vegan",
-  },
-  {
-    id: "10",
-    title: "Grilled Salmon",
-    imageUrl:
-      "https://www.thecookierookie.com/wp-content/uploads/2023/05/featured-grilled-salmon-recipe.jpg",
-    prepTime: "30–60 minutes",
-    foodType: "Kosher",
-  },
-  {
-    id: "11",
-    title: "Lentil Soup",
-    imageUrl:
-      "https://hips.hearstapps.com/hmg-prod/images/lentil-soup-recipe-2-677c54158ad10.jpg?crop=0.6667718689179948xw:1xh;center,top&resize=1200:*",
-    prepTime: "30–60 minutes",
-    foodType: "Vegan",
-  },
-  {
-    id: "12",
-    title: "Roasted Chicken",
-    imageUrl:
-      "https://assets.bonappetit.com/photos/62f5674caf9bae430097be0f/1:1/w_2560%2Cc_limit/0810-no-fail-roast-chicken-v2.jpg",
-    prepTime: "Over 1 hour",
-    foodType: "Meat-based",
-  },
-  {
-    id: "13",
-    title: "Avocado Toast",
-    imageUrl:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRc9AIvAc6dkD5GTVhVASi91F4Jc4n7AbOFhw&s",
-    prepTime: "Under 15 minutes",
-    foodType: "Vegetarian",
-  },
-  {
-    id: "14",
-    title: "Beetroot Salad",
-    imageUrl:
-      "https://cdn77-s3.lazycatkitchen.com/wp-content/uploads/2022/08/beetroot-salad-maple-walnut-platter-cloudy-800x1200.jpg",
-    prepTime: "15–30 minutes",
-    foodType: "Vegan",
-  },
-  {
-    id: "15",
-    title: "Shrimp Pasta",
-    imageUrl:
-      "https://www.eatloveeats.com/wp-content/uploads/2021/07/Lemon-Garlic-Shrimp-Pasta-22.jpg",
-    prepTime: "30–60 minutes",
-    foodType: "Kosher",
-  },
-  {
-    id: "16",
-    title: "Mushroom Risotto",
-    imageUrl:
-      "https://hips.hearstapps.com/del.h-cdn.co/assets/17/35/1600x1600/square-1504128527-delish-mushroom-risotto.jpg?resize=1200:*",
-    prepTime: "Over 1 hour",
-    foodType: "Vegetarian",
-  },
-];
 
 type FilterState = {
   time: string[];
@@ -157,63 +25,117 @@ export function RecipesPage() {
     type: [],
   });
 
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchRecipes() {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await axios.get("/api/recipes");
+        setRecipes(res.data);
+      } catch (err: any) {
+        setError(err.message || "Failed to fetch recipes");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchRecipes();
+  }, []);
+
   const filtered = recipes.filter((recipe) => {
-    const matchesTime =
-      filters.time.length === 0 || filters.time.includes(recipe.prepTime);
-    const matchesType =
-      filters.type.length === 0 || filters.type.includes(recipe.foodType);
-    return matchesTime && matchesType;
+    const timeMatches =
+      filters.time.length === 0 ||
+      filters.time.some((timeRange) => {
+        if (timeRange === "Under 15 minutes")
+          return recipe.preparationTime < 15;
+        if (timeRange === "15–30 minutes")
+          return recipe.preparationTime >= 15 && recipe.preparationTime <= 30;
+        if (timeRange === "30–60 minutes")
+          return recipe.preparationTime > 30 && recipe.preparationTime <= 60;
+        if (timeRange === "Over 1 hour") return recipe.preparationTime > 60;
+        return false;
+      });
+
+    const typeMatches =
+      filters.type.length === 0 || filters.type.includes(recipe.category);
+
+    return timeMatches && typeMatches;
   });
 
   return (
-    <div className="relative max-w-7xl mx-auto px-6 py-10">
+    <div>
+      {/* Кнопка открытия фильтра */}
       <button
-        aria-label="Toggle filter sidebar"
-        className="absolute left-0 top-4 text-green-600 hover:text-green-800 flex items-center gap-2 font-semibold text-lg px-3 py-2 rounded-md border border-green-600 hover:border-green-800 transition-shadow shadow-md"
+        aria-label={
+          isFilterOpen ? "Close filter sidebar" : "Open filter sidebar"
+        }
         onClick={() => setIsFilterOpen(!isFilterOpen)}
+        className="fixed top-20 left-4 z-50 flex items-center gap-2 bg-white dark:bg-gray-800 text-green-600 hover:text-green-800 border border-green-600 hover:border-green-800 rounded-md px-3 py-2 shadow-md cursor-pointer transition-colors"
       >
-        <Menu className="w-6 h-6" />
+        {isFilterOpen ? (
+          <X className="w-6 h-6" />
+        ) : (
+          <Menu className="w-6 h-6" />
+        )}
         Filters
       </button>
 
-      <FilterSidebar
-        isOpen={isFilterOpen}
-        onClose={() => setIsFilterOpen(false)}
-        filters={filters}
-        setFilters={setFilters}
-      />
-
-      <h1 className="text-5xl font-extrabold text-center mb-12 text-green-700">
-        Delicious Recipes
-      </h1>
-
-      {filtered.length === 0 ? (
-        <p className="text-center text-gray-600 dark:text-gray-300">
-          No recipes found.
-        </p>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-          {filtered.map((recipe) => (
-            <div
-              key={recipe.id}
-              className="relative cursor-pointer overflow-hidden rounded-lg shadow-md transition-transform duration-300 hover:scale-105 hover:shadow-xl"
-              onClick={() => navigate(`/recipe/${recipe.id}`)}
-            >
-              <img
-                src={recipe.imageUrl}
-                alt={recipe.title}
-                className="w-full h-48 object-cover"
-                loading="lazy"
-              />
-              <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 opacity-0 transition-opacity duration-300 hover:opacity-100">
-                <h2 className="text-white text-xl font-semibold">
-                  {recipe.title}
-                </h2>
-              </div>
-            </div>
-          ))}
+      {/* Сайдбар фильтра (фиксирован поверх контента, без оверлея) */}
+      {isFilterOpen && (
+        <div className="fixed top-24 left-4 z-50 h-[calc(100vh-6rem)] w-64 bg-white dark:bg-gray-900 rounded-md shadow-lg p-4 overflow-auto">
+          <FilterSidebar
+            isOpen={isFilterOpen}
+            onClose={() => setIsFilterOpen(false)}
+            filters={filters}
+            setFilters={setFilters}
+          />
         </div>
       )}
+
+      {/* Основной контент */}
+      <div className="max-w-7xl mx-auto px-6 py-10">
+        <h1 className="text-5xl font-extrabold text-green-700 mb-12">
+          Delicious Recipes
+        </h1>
+
+        {loading ? (
+          <p className="text-center text-gray-600 dark:text-gray-300">
+            Loading...
+          </p>
+        ) : error ? (
+          <p className="text-center text-red-600">{error}</p>
+        ) : filtered.length === 0 ? (
+          <div className="text-center text-gray-600 dark:text-gray-300">
+            <p>No recipes found.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+            {filtered.map((recipe) => (
+              <div
+                key={recipe._id}
+                className="relative cursor-pointer overflow-hidden rounded-lg shadow-md transition-transform duration-300 hover:scale-105 hover:shadow-xl"
+                onClick={() => navigate(`/recipe/${recipe._id}`)}
+              >
+                <img
+                  src={recipe.imgSrc}
+                  alt={recipe.title}
+                  className="w-full h-48 object-cover"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 opacity-0 transition-opacity duration-300 hover:opacity-100">
+                  <h2 className="text-white text-xl font-semibold">
+                    {recipe.title}
+                  </h2>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
