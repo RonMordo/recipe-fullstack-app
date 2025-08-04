@@ -5,9 +5,6 @@ import { Button } from "@/components/ui/button";
 export function ModeToggle() {
   const { theme, setTheme } = useTheme();
 
-  // По нажатию переключаем light <-> dark,
-  // system не показываем, но в контексте он используется при старте
-
   const toggleTheme = () => {
     if (theme === "light" || theme === "system") {
       setTheme("dark");
