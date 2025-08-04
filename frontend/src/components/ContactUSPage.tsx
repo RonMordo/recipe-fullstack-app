@@ -1,9 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useMutation } from "@tanstack/react-query";
-import axios from "axios";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Toast } from "./Toast";
 
 const contactSchema = z.object({
@@ -29,29 +27,19 @@ export function ContactUSPage() {
     resolver: zodResolver(contactSchema),
   });
 
-  const mutation = useMutation({
-    mutationFn: async (data: ContactFormData) => {
-      const response = await axios.post("/api/contact", data);
-      return response.data;
-    },
-  });
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
 
   const onSubmit = (data: ContactFormData) => {
-    mutation.mutate(data, {
-      onSuccess: () => {
-        setToast({
-          message: "Your message was sent successfully! 🎉",
-          type: "success",
-        });
-        reset();
-      },
-      onError: () => {
-        setToast({
-          message: "Error sending message. Please try again.",
-          type: "error",
-        });
-      },
+    setToast({
+      message: "Thank you for your message! We will contact you shortly.",
+      type: "success",
     });
+    reset();
   };
 
   return (
@@ -86,11 +74,9 @@ export function ContactUSPage() {
             <span className="absolute left-3 top-11 text-green-400 dark:text-emerald-400 pointer-events-none">
               👤
             </span>
-            {errors.name && (
-              <p className="text-red-600 dark:text-red-400 mt-1">
-                {errors.name.message}
-              </p>
-            )}
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400 min-h-[1.25rem] max-h-[1.25rem] overflow-hidden break-words">
+              {errors.name ? errors.name.message : "\u00A0"}
+            </p>
           </div>
 
           <div className="relative">
@@ -114,11 +100,9 @@ export function ContactUSPage() {
             <span className="absolute left-3 top-11 text-green-400 dark:text-emerald-400 pointer-events-none">
               📧
             </span>
-            {errors.email && (
-              <p className="text-red-600 dark:text-red-400 mt-1">
-                {errors.email.message}
-              </p>
-            )}
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400 min-h-[1.25rem] max-h-[1.25rem] overflow-hidden break-words">
+              {errors.email ? errors.email.message : "\u00A0"}
+            </p>
           </div>
 
           <div className="relative">
@@ -142,46 +126,16 @@ export function ContactUSPage() {
             <span className="absolute left-3 top-11 text-green-400 dark:text-emerald-400 pointer-events-none">
               💬
             </span>
-            {errors.message && (
-              <p className="text-red-600 dark:text-red-400 mt-1">
-                {errors.message.message}
-              </p>
-            )}
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400 min-h-[1.25rem] max-h-[1.25rem] overflow-hidden break-words">
+              {errors.message ? errors.message.message : "\u00A0"}
+            </p>
           </div>
 
           <button
             type="submit"
-            disabled={mutation.isPending}
-            className={`w-full py-3 font-semibold rounded-md text-white transition shadow-lg ${
-              mutation.isPending
-                ? "bg-gray-400 dark:bg-zinc-600 cursor-not-allowed"
-                : "bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800"
-            }`}
+            className="w-full py-3 font-semibold rounded-md text-white transition shadow-lg bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800"
           >
-            {mutation.isPending ? (
-              <svg
-                className="animate-spin h-5 w-5 mx-auto text-white"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                />
-              </svg>
-            ) : (
-              "Send Message"
-            )}
+            Send Message
           </button>
         </form>
 

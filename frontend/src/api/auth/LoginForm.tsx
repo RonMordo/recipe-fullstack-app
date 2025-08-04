@@ -4,10 +4,13 @@ import { Button } from "@/components/ui/button";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
+import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 const loginSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
+  email: z.string().email("Invalid email"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
 export function LoginForm({
@@ -25,17 +28,33 @@ export function LoginForm({
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = (data: any) => {
-    console.log("Login Data", data);
-    onSuccess();
+  const { login } = useAuth();
+
+  const [serverError, setServerError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const onSubmit = async (data: any) => {
+    setServerError(null);
+    setLoading(true);
+    try {
+      await axios.post("/api/auth/login", data, { withCredentials: true });
+      const res = await axios.get("/api/auth/me", { withCredentials: true });
+      login(res.data);
+      onSuccess();
+    } catch (err: any) {
+      setServerError(err.response?.data?.message || "Login failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <Card>
-      <CardContent className="grid md:grid-cols-2 p-0 min-h-[500px]">
+    <Card className="overflow-hidden">
+      <CardContent className="grid md:grid-cols-2 gap-0 p-0 min-h-[500px]">
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="flex flex-col justify-center gap-4 p-6"
+          noValidate
         >
           <div>
             <label className="text-sm font-medium">Email</label>
@@ -53,9 +72,15 @@ export function LoginForm({
             )}
           </div>
 
-          <Button type="submit">Login</Button>
+          {serverError && (
+            <p className="text-red-600 text-sm mt-2">{serverError}</p>
+          )}
 
-          <div className="text-sm text-center">
+          <Button type="submit" disabled={loading}>
+            {loading ? "Logging in..." : "Login"}
+          </Button>
+
+          <div className="text-sm text-center mt-4">
             Don&apos;t have an account?{" "}
             <button
               type="button"
@@ -67,11 +92,11 @@ export function LoginForm({
           </div>
         </form>
 
-        <div className="hidden md:block relative bg-muted aspect-[9/16]">
+        <div className="hidden md:block w-full h-full">
           <img
             src="https://roll-club.dp.ua/wp-content/uploads/2024/02/pizza-recipe.jpg"
             alt="Illustration"
-            className="absolute inset-0 h-full w-full object-cover rounded-r-lg"
+            className="w-full h-full object-cover"
           />
         </div>
       </CardContent>
