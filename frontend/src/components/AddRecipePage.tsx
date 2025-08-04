@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
@@ -29,6 +29,7 @@ export function AddRecipePage() {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
     reset,
   } = useForm<RecipeFormData>({
     resolver: zodResolver(recipeSchema),
@@ -40,6 +41,14 @@ export function AddRecipePage() {
   const [currentTag, setCurrentTag] = useState("");
   const [tagsList, setTagsList] = useState<string[]>([]);
 
+  useEffect(() => {
+    setValue("ingredients", ingredientsList);
+  }, [ingredientsList]);
+
+  useEffect(() => {
+    setValue("tags", tagsList);
+  }, [tagsList]);
+
   const mutation = useMutation({
     mutationFn: async (data: RecipeFormData) => {
       const response = await axios.post("/api/recipes", data);
@@ -47,11 +56,36 @@ export function AddRecipePage() {
     },
   });
 
+  // const onSubmit = (data: RecipeFormData) => {
+  //   const enrichedData: RecipeFormData = {
+  //     ...data,
+  //     ingredients: ingredientsList,
+  //     tags: tagsList,
+  //   };
+
+  //   mutation.mutate(enrichedData, {
+  //     onSuccess: () => {
+  //       alert("Recipe added successfully!");
+  //       reset();
+  //       setIngredientsList([]);
+  //       setTagsList([]);
+  //     },
+  //     onError: () => {
+  //       alert("Error adding recipe");
+  //     },
+  //   });
+  // };
+
   const onSubmit = (data: RecipeFormData) => {
+    if (ingredientsList.length === 0) {
+      alert("Please add at least one ingredient.");
+      return;
+    }
+
     const enrichedData: RecipeFormData = {
       ...data,
       ingredients: ingredientsList,
-      tags: tagsList,
+      tags: tagsList, // if you're using a similar list for tags
     };
 
     mutation.mutate(enrichedData, {
@@ -155,6 +189,7 @@ export function AddRecipePage() {
           >
             Ingredients
           </label>
+
           <div className="flex space-x-2 mb-2">
             <input
               id="ingredientsInput"
@@ -192,29 +227,27 @@ export function AddRecipePage() {
               Add
             </button>
           </div>
+
+          {/* ✅ Render horizontally with wrap */}
           {ingredientsList.length > 0 && (
-            <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto mb-2 pr-2">
+            <div className="flex flex-wrap gap-2 mb-2">
               {ingredientsList.map((ing, index) => (
                 <span
                   key={index}
-                  className="bg-green-200 text-green-800 px-3 py-1 rounded-full flex items-center"
+                  className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm"
                 >
                   {ing}
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setIngredientsList((prev) =>
-                        prev.filter((item) => item !== ing)
-                      )
-                    }
-                    className="ml-2 text-red-600 hover:text-red-800 font-bold"
-                  >
-                    ×
-                  </button>
                 </span>
               ))}
             </div>
           )}
+
+          {/* ✅ Hidden input for react-hook-form */}
+          {/* <input
+            type="hidden"
+            {...register("ingredients")}
+            value={JSON.stringify(ingredientsList)}
+          /> */}
 
           {errors.ingredients && (
             <p className="text-red-600 mt-1">{errors.ingredients.message}</p>
@@ -227,7 +260,7 @@ export function AddRecipePage() {
             htmlFor="tagInput"
             className="block mb-1 font-medium text-gray-700 dark:text-gray-300"
           >
-            Tags (optional)
+            Tags
           </label>
 
           <div className="flex space-x-2 mb-2">
