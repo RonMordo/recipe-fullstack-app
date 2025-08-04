@@ -46,6 +46,12 @@ const recipeSchema = new Schema<RecipeDocument, IRecipeModel>(
   }
 );
 
+recipeSchema.virtual("reviews", {
+  ref: "Review",
+  localField: "_id",
+  foreignField: "recipe",
+});
+
 export const RecipeModel = model<RecipeDocument, IRecipeModel>(
   "Recipe",
   recipeSchema
